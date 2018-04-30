@@ -71,8 +71,8 @@ Tests
 
 The package must pass the following tests.
 
-1. If a correct username and password are passed to `token_session`, the first time one of the HTTP verb methods is called on the returned object, a request to the given URL is made with the username and password.
-2. If a correct username and password are passed to `token_session`, all subsequent HTTP requests have an Authentication header with the correct string.
+1. If a correct username and password are passed to `token_session`, the first time one of the HTTP verb methods is called on the returned object, a request to the given URL is made with the username and password. Assuming the token has not expired, further calls don't make such a request.
+2. If a correct username and password are passed to `token_session`, assuming the token has not expired, all subsequent HTTP requests (after the initial request for a token) have an Authentication header with the correct string.
 3. If an HTTP request is made after a token has expired, another request is made to the URL passed to `token_session` with the username and password.
 4. If an HTTP request is made after a token has expired, all subsequent HTTP requests use the new token in their Authentication header.
 5. the logout method removes username, password, token and expiry date.
