@@ -4,7 +4,7 @@ Installation
 Python version
 --------------
 
-We recommend using the latest version of Python 3. Python 2 is not syupported; it may or may not work.
+We recommend using the latest version of Python 3. Python 2 is not supported; it may or may not work.
 
 Install token-auth-requests
 ---------------------------
