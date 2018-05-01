@@ -22,7 +22,7 @@ setup(
     py_modules=['token_auth_request'],
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     install_requires=['requests'],
-    tests_require=['pytest', 'httpretty'],
+    tests_require=['pytest', 'httpretty', 'freezegun'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Framework :: Pytest',
