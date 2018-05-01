@@ -79,8 +79,8 @@ class AuthSession:
     def __getattr__(self, item):
         """Get the item from the internal requests session, requiring a token first if need be.
 
-        If a method corresponding to an HTTP verb is requested and there is no valid token, a token is requested from the
-        authentication URL first.
+        If a method corresponding to an HTTP verb is requested and there is no valid token, a token is requested from
+        the authentication URL first.
 
         Parameters
         ----------
@@ -147,7 +147,7 @@ class AuthException(Exception):
     """
 
     def __init__(self, message):
-        super().__init__(message)
+        super(Exception, self).__init__(message)
 
 
 def auth_session(username, password, auth_url):
@@ -162,7 +162,7 @@ def auth_session(username, password, auth_url):
     password : str
         The password for authentication.
     auth_url : str
-        The URL for authenrticating, i.e. for obtaining a token.
+        The URL for authenticating, i.e. for obtaining a token.
 
     Returns
     -------

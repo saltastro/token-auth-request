@@ -20,7 +20,7 @@ setup(
     description='A plugin for using pytest with a database',
     long_description=read('README.rst'),
     py_modules=['token_auth_request'],
-    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*',
     install_requires=['requests'],
     tests_require=['pytest', 'httpretty', 'freezegun'],
     classifiers=[
