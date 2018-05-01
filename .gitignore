@@ -31,3 +31,4 @@ docs/_build
 specs/_build
 /venv
 .pytest_cache
+.hypothesis

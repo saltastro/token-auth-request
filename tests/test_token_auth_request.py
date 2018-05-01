@@ -29,8 +29,9 @@ def test_initial_authentication_request(httpretty):
     all_requests = httpretty.latest_requests
     assert len(all_requests) == 3
 
-    # the first request requests a token
+    # the first request requests a token (using POST with JSON)
     assert all_requests[0].url == TOKEN_URI
+    assert all_requests[0].headers['Content-Type'] == 'application/json'
     body = json.loads(all_requests[0].body)
     assert body['username'] == USERNAME
     assert body['password'] == PASSWORD
