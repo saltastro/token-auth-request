@@ -16,7 +16,7 @@ Conceptual Solution
 
 The `token-auth-request` package provides exactly one method, `auth_session`. This accepts a username, password and a URL. It returns an object which has all the methods of the `requests <http://docs.python-requests.org/>`_ library's Session class.
 
-Whenever a method corresponding to an HTTP verb (i.e. DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT or a custom verb) is called on this object, the object will first check whether it has a non-expired authentication token. If it has not, it sends ab HTTP request to the URL passed to the `auth_session`. This request must look as follows.
+Whenever a method corresponding to an HTTP verb (i.e. DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT or a custom verb) is called on this object, the object will first check whether it has a non-expired authentication token. Here non-expired means that the expiry time is in the past or within the next minute. If it has not expired, it sends an HTTP request to the URL passed to the `auth_session`. This request must look as follows.
 
 =====================  ============================================
 Property               Value                                       
@@ -71,14 +71,13 @@ Tests
 
 The package must pass the following tests.
 
-1. If a correct username and password are passed to `token_session`, the first time one of the HTTP verb methods is called on the returned object, a request to the given URL is made with the username and password. Assuming the token has not expired, further calls don't make such a request.
+1. If a correct username and password are passed to `token_session`, the first time one of the HTTP verb methods is called on the returned object, a POST request to the given URL is made with the username and password passed as a JSON string. Assuming the token has not expired, further calls don't make such a request.
 2. If a correct username and password are passed to `token_session`, assuming the token has not expired, all subsequent HTTP requests (after the initial request for a token) have an Authentication header with the correct string.
-3. If an HTTP request is made after a token has expired, another request is made to the URL passed to `token_session` with the username and password.
-4. If an HTTP request is made after a token has expired, all subsequent HTTP requests use the new token in their Authentication header.
-5. the logout method removes username, password, token and expiry date.
-6. An AuthException is raised if the server replies with a 401 error when a token is requested.
-7. An AuthException is raised if an HTTP request is made after the logout method has been called.
-8. An exception is raised if the server replies with a status code other than 200 or 500.
+3. If an HTTP request is made and the current token's expiry time is less than one minute in the future, a new token is requested and subsequent HTTP requests use the new token in the Authentication header.
+4. The logout method removes username, password, token and expiry date.
+5. An AuthException is raised if the server replies with a 401 error when a token is requested.
+6. An AuthException is raised if an HTTP request is made after the logout method has been called.
+7. An exception is raised if the server replies with a status code other than 200 or 401.
 
 Implementation
 --------------
