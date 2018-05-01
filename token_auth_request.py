@@ -52,7 +52,7 @@ class AuthSession:
 
     """
 
-    http_methods = ['delete', 'get', 'head', 'options', 'patch', 'post', 'put']
+    http_methods = ['delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'request']
 
     def __init__(self, username, password, auth_url):
         self._username = username
