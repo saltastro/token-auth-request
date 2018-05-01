@@ -22,16 +22,30 @@ def token_response(token, expires_in):
     return json.dumps(dict(token=token, expires_in=expires_in))
 
 
+methods = [
+    ('delete', httpretty.DELETE),
+    ('get', httpretty.GET),
+    ('head', httpretty.HEAD),
+    ('options', httpretty.OPTIONS),
+    ('patch', httpretty.PATCH),
+    ('post', httpretty.POST),
+    ('put', httpretty.PUT)
+]
+
+method_ids = [method[0] for method in methods]
+
+
 @httpretty.httprettified
-def test_initial_authentication_request():
+@pytest.mark.parametrize('method', methods, ids=method_ids)
+def test_initial_authentication_request(method):
     """A token is requested before the first HTTP request."""
 
     httpretty.register_uri(httpretty.POST, TOKEN_URI, token_response(TOKEN_ONE, 1000))
-    httpretty.register_uri(httpretty.GET, DUMMY_URI, 'some test response')
+    httpretty.register_uri(method[1], DUMMY_URI, 'some test response')
 
     session = auth_session(USERNAME, PASSWORD, TOKEN_URI)
-    session.get(DUMMY_URI)
-    session.get(DUMMY_URI)
+    getattr(session, method[0])(DUMMY_URI)
+    getattr(session, method[0])(DUMMY_URI)
 
     # one token requst, two "normal" requests
     all_requests = HTTPretty.latest_requests
