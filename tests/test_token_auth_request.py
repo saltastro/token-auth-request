@@ -7,7 +7,7 @@ import hypothesis.strategies as s
 from hypothesis import given, settings
 import pytest
 
-from token_auth_request import auth_session, AuthException
+from token_auth_requests import auth_session, AuthException
 
 
 USERNAME = 'tyhuk67'

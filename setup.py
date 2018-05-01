@@ -9,7 +9,7 @@ def read(fname):
 
 
 setup(
-    name="token_auth_request",
+    name="token_auth_requests",
     version="0.1.0",
     author='SALT/SAAO',
     author_email='salthelp@salt.ac.za',
@@ -19,7 +19,7 @@ setup(
     url='https://github.com/saltastro/pytest-db-content',
     description='A plugin for using pytest with a database',
     long_description=read('README.rst'),
-    py_modules=['token_auth_request'],
+    py_modules=['token_auth_requests'],
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*',
     install_requires=['requests'],
     tests_require=['pytest', 'httpretty', 'freezegun'],

@@ -6,10 +6,10 @@ Python version
 
 We recommend using the latest version of Python 3. Python 2 is not syupported; it may or may not work.
 
-Install token-auth-request
---------------------------
+Install token-auth-requests
+---------------------------
 
-You may install token-auth-request in the usual way with pip, preferably in a virtual environment.
+You may install token-auth-requests in the usual way with pip, preferably in a virtual environment.
 
 .. code-block:: bash
 

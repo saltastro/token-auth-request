@@ -9,37 +9,37 @@ Introduction
 
 It often makes sense to pair a web-based API with a Python-based library for easy access. If the API use requires authentication, the library must be able to handle it. While this certainly can be achieved on an ad hoc basis, it seems more reasonable to encapsulate the authentication handling into a Python package of its own.
 
-`token-auth-request` does precisely that. It accepts a username and password and uses them to request an authentication token, which is used for subsequent HTTP calls. The token is stored, and a new token is automatically requested if the current one has expired.
+`token-auth-requests` does precisely that. It accepts a username and password and uses them to request an authentication token, which is used for subsequent HTTP calls. The token is stored, and a new token is automatically requested if the current one has expired.
 
 Conceptual Solution
 -------------------
 
-The `token-auth-request` package provides exactly one method, `auth_session`. This accepts a username, password and a URL. It returns an object which has all the methods of the `requests <http://docs.python-requests.org/>`_ library's Session class.
+The `token-auth-requests` package provides exactly one method, `auth_session`. This accepts a username, password and a URL. It returns an object which has all the methods of the `requests <http://docs.python-requests.org/>`_ library's Session class.
 
 Whenever a method corresponding to an HTTP verb (i.e. DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT or a custom verb) is called on this object, the object will first check whether it has a non-expired authentication token. Here non-expired means that the expiry time is in the past or within the next minute. If it has not expired, it sends an HTTP request to the URL passed to the `auth_session`. This request must look as follows.
 
 =====================  ============================================
-Property               Value                                       
+Property               Value
 =====================  ============================================
-HTTP method            POST                                        
-Content-Type header    application/json                            
-Payload                { username: username, password: password }  
+HTTP method            POST
+Content-Type header    application/json
+Payload                { username: username, password: password }
 =====================  ============================================
 
 The response is expected to look as follows.
 
 =====================  =======================================
-Property               Value                                  
+Property               Value
 =====================  =======================================
-HTTP status code       200                                    
-Content-Type header    application/json                       
-Data                   { token: token, expires_in: seconds }  
+HTTP status code       200
+Content-Type header    application/json
+Data                   { token: token, expires_in: seconds }
 =====================  =======================================
 
 For example, if the username and password passed to `auth_session` are `sipho` and `topsecret`, the token generated for the user is `abcd1234` and the token expires in 500 seconds, then the request should have the payload
 
 .. code-block:: json
-   
+
    {
        "username": "sipho",
        "password": "topsecret"
@@ -48,7 +48,7 @@ For example, if the username and password passed to `auth_session` are `sipho` a
 and the response data should be
 
 .. code-block:: json
-   
+
    {
        "token": "abcd1234",
        "expires_in": 500
@@ -85,17 +85,17 @@ Implementation
 The `auth_session` method returns an instance of a class `AuthSession`. This class has the following properties:
 
 =============  ===========================================================
-Property       Description                                                
+Property       Description
 =============  ===========================================================
-username       Username passed to `auth_session`                          
-password       Password passed to `auth_session`                          
-auth_url       Authentication URl, as passed to `auth_session`            
-token          Token returned by the server                               
-expiry_time    Datetime when the token expires                            
-logged_out     Flag indicating whether the logout method has been called  
-_session       requests Session instance                                  
+username       Username passed to `auth_session`
+password       Password passed to `auth_session`
+auth_url       Authentication URl, as passed to `auth_session`
+token          Token returned by the server
+expiry_time    Datetime when the token expires
+logged_out     Flag indicating whether the logout method has been called
+_session       requests Session instance
 =============  ===========================================================
 
 The class also implements the `__getattr__` method. This checks whether the argument is a `requests` Session corresponding to an HTTP verb. If so, it makes sure that the `logged_out` flag is `False` (and throws an `AuthException` if that is not the case). It then checks whether there is a non-expired token and, if so, calls the method on `_session`. Otherwise, it tries to get a token from the server, adds the token as an HTTP header to `_session` and then calls the method on `_session`.
 
-The class also has a method `logout`, which sets the username, password, token and expiry_time to `None` and the `logged_out` flag to `True`. 
+The class also has a method `logout`, which sets the username, password, token and expiry_time to `None` and the `logged_out` flag to `True`.

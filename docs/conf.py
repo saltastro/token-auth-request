@@ -48,7 +48,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'token-auth-request'
+project = u'token-auth-requests'
 copyright = u'2018, SALT/SAAO'
 author = u'SALT/SAAO'
 
