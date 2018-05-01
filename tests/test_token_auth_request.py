@@ -14,7 +14,6 @@ USERNAME = 'tyhuk67'
 PASSWORD = 'gh37xvfkk'
 TOKEN_ONE = 'x5467ghwujk78'
 TOKEN_TWO = 'jsgti35vftju6'
-TOKEN_THREE = 'a788nh6dgk6dd'
 TOKEN_URI = 'http://token.salt.ac.za/'
 DUMMY_URI = 'http://api.salt.ac.za/'
 
