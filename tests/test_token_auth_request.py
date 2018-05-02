@@ -209,3 +209,26 @@ def test_exception_for_status_other_than_200_or_401(status):
 
     with pytest.raises(Exception):
         session.get(DUMMY_URI)
+
+
+@httpretty.httprettified
+def test_custom_auth_request_maker():
+    """A custom function can be used to create the body of the authentication request."""
+
+    httpretty.register_uri(httpretty.POST, TOKEN_URI, token_response(TOKEN_ONE, 1000))
+    httpretty.register_uri(httpretty.GET, DUMMY_URI, 'some test response')
+
+    session = auth_session(username=USERNAME, password=PASSWORD, auth_url=TOKEN_URI)
+    session.auth_request_maker(lambda username, password : dict(auth_data='{}:{}'.format(username, password)))
+
+    session.get(DUMMY_URI)
+
+    # one token request, one "normal" request
+    all_requests = HTTPretty.latest_requests
+    assert len(all_requests) == 2
+
+    # the first request requests a token (using POST with JSON)
+    assert 'token' in all_requests[0].headers['Host']
+    assert all_requests[0].headers['Content-Type'] == 'application/json'
+    body = json.loads(all_requests[0].body)
+    assert body['auth_data'] == USERNAME + ':' + PASSWORD
