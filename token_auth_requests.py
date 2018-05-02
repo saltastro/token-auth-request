@@ -62,6 +62,36 @@ class AuthSession:
         self._expiry_time = None
         self._session = requests.Session()
         self._logged_out = False
+        self._auth_request_maker = lambda _username, _password: dict(username=_username, password=_password)
+
+    def auth_request_maker(self, request_maker):
+        """Replace the function for creating the authentication request.
+
+        By default it is assumed that the authentication expects a (JSON) object of the form
+
+        {
+            "username": "sipho",
+            "password": "secret"
+        }
+
+        and this is what the authentication request sends. You may change this behaviour by passing your own custom function
+        to this method. Your function must accept a username and password as its arguments and must return an object which
+        can be turned intro a JSON string.
+
+        For example, assume the server expects the user credentials to be sent as a JSON object like
+
+        {
+            "credentials": "sipho:secret"
+        }
+
+        Then you could add the following code after creating your authentication (and before making the first HTTP
+        request):
+
+        session.auth_request_maker(lambda u, p: '{}:{}'.format(u, p))
+
+        """
+
+        self._auth_request_maker = request_maker
 
     def logout(self):
         """Remove all authentication data.
@@ -117,7 +147,7 @@ class AuthSession:
 
         """
 
-        payload = dict(username=self._username, password=self._password)
+        payload = self._auth_request_maker(self._username, self._password)
         r = requests.post(self._auth_url, json=payload)
 
         # handle authentication failure
