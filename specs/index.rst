@@ -14,9 +14,9 @@ It often makes sense to pair a web-based API with a Python-based library for eas
 Conceptual Solution
 -------------------
 
-The `token-auth-requests` package provides exactly one method, `auth_session`. This accepts a username, password and a URL. It returns an object which has all the methods of the `requests <http://docs.python-requests.org/>`_ library's Session class.
+The `token-auth-requests` package provides exactly one method, `auth_session`. This accepts a username, password and a URL. It returns an object which has all the methods of the `requests <http://docs.python-requests.org/>`_ library's Session class. This object is called session in the following.
 
-Whenever a method corresponding to an HTTP verb (i.e. DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT or a custom verb) is called on this object, the object will first check whether it has a non-expired authentication token. Here non-expired means that the expiry time is in the past or within the next minute. If it has not expired, it sends an HTTP request to the URL passed to the `auth_session`. This request must look as follows.
+Whenever a method corresponding to an HTTP verb (i.e. DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT or a custom verb) is called on the session, the session will first check whether it has a non-expired authentication token. Here non-expired means that the expiry time is in the past or within the next minute. If it has not expired, it sends an HTTP request to the URL passed to the `auth_session`. This request must look as follows.
 
 =====================  ============================================
 Property               Value
@@ -62,7 +62,24 @@ Both the token and its expiry time are stored. After that, or if there was a non
 
 Only then is the actual HTTP method of the `requests` Session class called. All positional and keyword arguments are passed on as is.
 
-The object has a `logout` method, which removes the username, password, token and expiry time.
+If the server uses other formats for the authentication data and token, the session can be customised to handle these, as described below.
+
+The session exposes some public methods in addition to those of the requests Session class.
+
+logout()
+~~~~~~~~
+
+ The `logout` method, removes the username, password, token and expiry time. Any HTTP request will raise an exception after this method is called.
+
+ auth_request_maker(func)
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+
+ The `auth_request_maker` method replaces the default function for creating the object to be of the POST request for getting the token. The function must accept a username and password as its arguments, and it must return an object which can be sent as JSON.
+
+ auth_response_parser(func)
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+ The `auth_response_parser` replaces the default function for parsing the response body of the POST request for getting a token. It must accept a string as its only argument, and it must return a dictionary with `token` and `expires_in` as keys.
 
 The package also defines an exception type `AuthException`. An `AuthException` should be raised if the server replies with a 401 error when a token is requested, or if an HTTP request is made after the object's `logout` method has been called.
 
@@ -78,6 +95,8 @@ The package must pass the following tests.
 5. An AuthException is raised if the server replies with a 401 error when a token is requested.
 6. An AuthException is raised if an HTTP request is made after the logout method has been called.
 7. An exception is raised if the server replies with a status code other than 200 or 401.
+8. `auth_request_maker` changes the function for making the body of an authentication request.
+9. `auth_response_parser` changes the function for parsing the response of an authentication request.
 
 Implementation
 --------------
