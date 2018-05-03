@@ -26,11 +26,10 @@ class TokenAuth(AuthBase):
 class AuthSession:
     """An HTTP requests session which automatically handles token authentication.
 
-    The session object exposes all the methods and fields exposed by the Session class of the requests library;
-    see [1]_. Before making its first HTTP call,
-    it gets an authentication token by sending the username and password to an authentication URL. The token and its
-    expiry date are stored, and the token is sent in an Authentication HTTP header with all HTTP requests. If the
-    token expires, a new one is requested before the next HTTO request is made.
+    The session object exposes all the methods and fields exposed by the Session class of the requests library; see [
+    1]_. Before making its first HTTP call, it gets an authentication token by sending the username and password to
+    an authentication URL. The token and its expiry date are stored, and the token is sent in an Authentication HTTP
+    header with all HTTP requests. If the token expires, a new one is requested before the next HTTP request is made.
 
     The username, password and token can be deleted by calling the `logout` method. You cannot make any further HTTP
     requests after doing this.

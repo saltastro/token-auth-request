@@ -37,7 +37,7 @@ For example, if there is a GET route `/enemies` and a POST route `/save-the-worl
    r = session.post('http://api.wakanda.gov.wk/save-the-world')
    print(r.status_code)  # hopefully the status code is 200...
 
-Refer to the `requests documentation <http://docs.python-requests.org/>`_ for all the cool stuff you can do. You don't have to worry about about tokens or their expiry dates; trhey are taken care of automatically.
+Refer to the `requests documentation <http://docs.python-requests.org/>`_ for all the cool stuff you can do. You don't have to worry about about tokens or their expiry dates; they are taken care of automatically.
 
 When things go boom in the night
 --------------------------------

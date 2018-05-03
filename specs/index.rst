@@ -55,7 +55,7 @@ and the response data should be
    }
 
 
-Both the token and its expiry time are stored. After that, or if there was a non-expired token already, the token is added as an HTTP header with key `Authentication` and value `Token xyz` (where `xyx` denotes the token) to the session. For example, for the token above the header would look be
+Both the token and its expiry time are stored. After that, or if there was a non-expired token already, the token is added as an HTTP header with key `Authentication` and value `Token xyz` (where `xyz` denotes the token) to the session. For example, for the token above the header would look be
 
 ::
    Authentication: Token abcd1234
