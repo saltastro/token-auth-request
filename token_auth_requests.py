@@ -1,6 +1,7 @@
 """An HTTP requests session for handling authentication."""
 
 from datetime import datetime, timedelta
+import json
 import requests
 from requests.auth import AuthBase
 
@@ -62,6 +63,7 @@ class AuthSession:
         self._session = requests.Session()
         self._logged_out = False
         self._auth_request_maker = lambda _username, _password: dict(username=_username, password=_password)
+        self._auth_response_parser = lambda response: json.loads(response)
 
     def auth_request_maker(self, request_maker):
         """Replace the function for creating the authentication request.
@@ -73,9 +75,9 @@ class AuthSession:
             "password": "secret"
         }
 
-        and this is what the authentication request sends. You may change this behaviour by passing your own custom function
-        to this method. Your function must accept a username and password as its arguments and must return an object which
-        can be turned intro a JSON string.
+        and this is what the authentication request sends. You may change this behaviour by passing your own custom
+        function to this method. Your function must accept a username and password as its arguments and must return
+        an object which can be turned intro a JSON string.
 
         For example, assume the server expects the user credentials to be sent as a JSON object like
 
@@ -88,9 +90,42 @@ class AuthSession:
 
         session.auth_request_maker(lambda u, p: '{}:{}'.format(u, p))
 
+        Parameters
+        ----------
+        request_maker: callable
+            The function for creating the request body from the username and password.
+
         """
 
         self._auth_request_maker = request_maker
+
+    def auth_response_parser(self, response_parser):
+        """Replace the function for parsing the response from an authentication request.
+
+        By default it is assumed that the authentication request returns a response like
+
+        {
+            "token": "cghjw56ger",
+            "expires_in": 5000
+        }
+
+        and the token and expiry time are obtained based on this assumption. You may change this behaviour by your own custom
+        function to this method. This function must accept a string (the response body) as its only argument and must
+        return a dictionary with keys `token` and `expires_in`.
+
+        For example, assume the authentication just returns a string with the token (which never expires). Then you
+        could add the following code after creating your authentication (and before making the first HTTP request):
+
+        session.auth_response_parser(lambda response: dict(token=response, expires_in=100000))
+
+        Parameters
+        ----------
+        response_parser : callable
+            The function for parsing the response from an authentication request.
+
+        """
+
+        self._auth_response_parser = response_parser
 
     def logout(self):
         """Remove all authentication data.
@@ -155,7 +190,7 @@ class AuthSession:
                 raise AuthException('Unauthorized')
             raise Exception('Unknown error')
 
-        data = r.json()
+        data = self._auth_response_parser(r.text)
         self._token = data['token']
         self._expiry_time = datetime.now() + timedelta(seconds=data['expires_in'])
 

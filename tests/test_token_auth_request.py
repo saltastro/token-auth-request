@@ -47,7 +47,7 @@ def test_initial_authentication_request(method):
     getattr(session, method[0])(DUMMY_URI)
     getattr(session, method[0])(DUMMY_URI)
 
-    # one token requst, two "normal" requests
+    # one token request, two "normal" requests
     all_requests = HTTPretty.latest_requests
     assert len(all_requests) == 3
 
@@ -232,3 +232,43 @@ def test_custom_auth_request_maker():
     assert all_requests[0].headers['Content-Type'] == 'application/json'
     body = json.loads(all_requests[0].body)
     assert body['auth_data'] == USERNAME + ':' + PASSWORD
+
+
+@httpretty.httprettified
+def test_custom_auth_response_parser():
+    """A custom function can be used to parse the body of the response to an authentication request."""
+
+    httpretty.register_uri(httpretty.POST, TOKEN_URI, TOKEN_ONE)
+
+    expires_in = 5871
+    session = auth_session(USERNAME, PASSWORD, TOKEN_URI)
+    session.auth_response_parser(lambda response: dict(token=response, expires_in=expires_in))
+
+    # initial token
+    httpretty.register_uri(httpretty.GET, DUMMY_URI, 'some test response')
+    start_time = datetime(2018, 5, 1, 17, 0, 0, 0)
+    with freeze_time(start_time):
+        session.get(DUMMY_URI)
+    all_requests = HTTPretty.latest_requests
+    assert all_requests[-1].headers['Authentication'] == 'Token {token}'.format(token=TOKEN_ONE)
+
+    # initial token still valid
+    httpretty.reset()
+    httpretty.register_uri(httpretty.GET, DUMMY_URI, 'some test response')
+    with freeze_time(start_time + timedelta(seconds=expires_in - 60)):
+        session.get(DUMMY_URI)
+    assert len(HTTPretty.latest_requests) == 1
+    assert 'token' not in httpretty.last_request().headers['Host']
+
+    # initial token not valid any longer
+    httpretty.reset()
+    httpretty.register_uri(httpretty.POST, TOKEN_URI, TOKEN_TWO)
+    httpretty.register_uri(httpretty.GET, DUMMY_URI, 'some test response')
+    with freeze_time(start_time + timedelta(seconds=expires_in - 59)):
+        session.get(DUMMY_URI)
+
+    # two requests, as a new token is requested first
+    all_requests = HTTPretty.latest_requests
+    assert len(all_requests) == 2
+
+
